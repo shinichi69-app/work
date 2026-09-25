@@ -3,19 +3,20 @@
   "name": "TASK_SYSTEM PWA",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192/050505/00ff88?text=TASK",
+      "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "https://via.placeholder.com/512/050505/00ff88?text=TASK",
+      "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
   "start_url": "./index.html",
+  "scope": "./",
   "background_color": "#050505",
   "theme_color": "#050505",
   "display": "standalone",
