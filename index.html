@@ -3,358 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Reminder PWA</title>
-<style>
-    :root {
-        --primary: #00ff41;          /* เขียวเรืองแสงแบบ Matrix */
-        --primary-dim: #008f11;      /* เขียวเข้มสำหรับ hover */
-        --bg: #0a0e0a;               /* ดำสนิทแบบ terminal */
-        --card: #0d1117;             /* ดำเทาเข้มแบบ GitHub Dark */
-        --text: #00ff41;             /* ตัวอักษรสีเขียว */
-        --text-dim: #4a7c4a;         /* เขียวจางสำหรับ secondary */
-        --danger: #ff0033;           /* แดงแบบ error terminal */
-        --success: #00ff41;
-        --border: #00ff4133;         /* ขอบเขียวโปร่งแสง */
-    }
+    <title>TASK_SYSTEM // PWA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
 
-    * {
-        font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
-    }
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #111111;
+            --border: #2a2a2a;
+            --border-light: #3a3a3a;
+            --text: #e0e0e0;
+            --text-dim: #666666;
+            --text-muted: #444444;
+            --accent: #ffffff;
+            --danger: #ff3333;
+            --success: #00ff88;
+            --warning: #ffaa00;
+        }
 
-    body {
-        background-color: var(--bg);
-        color: var(--text);
-        margin: 0;
-        padding: 0;
-        padding-bottom: 80px;
-        background-image: 
-            linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
-        background-size: 20px 20px;
-        min-height: 100vh;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* เอฟเฟกต์ scanline แบบจอ CRT */
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: repeating-linear-gradient(
-            0deg,
-            rgba(0, 0, 0, 0.15),
-            rgba(0, 0, 0, 0.15) 1px,
-            transparent 1px,
-            transparent 2px
-        );
-        pointer-events: none;
-        z-index: 9999;
-    }
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 60px;
+        }
 
-    header {
-        background: #000000;
-        color: var(--primary);
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        border-bottom: 2px solid var(--primary);
-        box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
-    }
+        /* Grid Background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-    header h1 { 
-        margin: 0; 
-        font-size: 1.2rem; 
-        text-shadow: 0 0 10px var(--primary);
-        letter-spacing: 2px;
-    }
+        /* ===== HEADER ===== */
+        header {
+            position: relative;
+            z-index: 20;
+            padding: 30px 20px 20px;
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-    header h1::before {
-        content: "> ";
-        animation: blink 1s infinite;
-    }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--border-light);
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
 
-    @keyframes blink {
-        0%, 50% { opacity: 1; }
-        51%, 100% { opacity: 0; }
-    }
+        .header-info h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
 
-    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .header-info .subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+        }
 
-    .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
-        position: relative;
-    }
+        .header-info .subtitle::before { content: "[ "; }
+        .header-info .subtitle::after  { content: " ]"; }
 
-    .card::before {
-        content: "┌─ SYSTEM ─┐";
-        position: absolute;
-        top: -10px;
-        left: 15px;
-        background: var(--card);
-        padding: 0 8px;
-        color: var(--primary-dim);
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-    }
+        /* ===== CONTAINER ===== */
+        .container {
+            position: relative;
+            z-index: 20;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 20px 20px;
+        }
 
-    .card h2 {
-        color: var(--primary);
-        font-size: 1rem;
-        margin-top: 0;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
-    }
+        /* ===== CARD ===== */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 25px;
+            margin-bottom: 20px;
+            position: relative;
+        }
 
-    .form-group { margin-bottom: 15px; }
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 24px; height: 24px;
+            border-top: 2px solid var(--border-light);
+            border-left: 2px solid var(--border-light);
+        }
 
-    label { 
-        display: block; 
-        margin-bottom: 5px; 
-        font-weight: 600; 
-        font-size: 0.85rem;
-        color: var(--primary-dim);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+        .card::after {
+            content: "";
+            position: absolute;
+            bottom: 0; right: 0;
+            width: 24px; height: 24px;
+            border-bottom: 2px solid var(--border-light);
+            border-right: 2px solid var(--border-light);
+        }
 
-    label::before {
-        content: "$ ";
-        color: var(--primary);
-    }
+        .card-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border);
+        }
 
-    input, button {
-        width: 100%;
-        padding: 12px;
-        border-radius: 2px;
-        border: 1px solid var(--border);
-        font-size: 1rem;
-        box-sizing: border-box;
-        font-family: inherit;
-    }
+        .card-title::before {
+            content: "▸ ";
+            color: var(--text);
+        }
 
-    input {
-        background: #000000;
-        color: var(--primary);
-        caret-color: var(--primary);
-    }
+        /* ===== FORM ===== */
+        .form-group { margin-bottom: 18px; }
 
-    input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
-    }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-    input::placeholder {
-        color: var(--text-dim);
-        font-style: italic;
-    }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
 
-    button {
-        background: transparent;
-        color: var(--primary);
-        border: 1px solid var(--primary);
-        cursor: pointer;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        transition: all 0.2s;
-        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
-    }
+        input:focus {
+            outline: none;
+            border-color: var(--border-light);
+            background: #0d0d0d;
+        }
 
-    button:hover {
-        background: var(--primary);
-        color: #000000;
-        box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
-        text-shadow: none;
-    }
+        input::placeholder { color: var(--text-muted); }
 
-    button:active { 
-        transform: scale(0.98);
-    }
+        /* ===== BUTTONS ===== */
+        button {
+            font-family: 'Share Tech Mono', monospace;
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
 
-    .btn-danger { 
-        background: transparent;
-        color: var(--danger); 
-        border: 1px solid var(--danger);
-        padding: 6px 10px; 
-        width: auto; 
-        font-size: 0.75rem;
-        text-shadow: 0 0 5px rgba(255, 0, 51, 0.5);
-    }
+        button:hover {
+            background: var(--text);
+            color: var(--bg);
+            border-color: var(--text);
+        }
 
-    .btn-danger:hover {
-        background: var(--danger);
-        color: #000;
-        box-shadow: 0 0 15px rgba(255, 0, 51, 0.6);
-    }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+        }
 
-    .task-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px;
-        border-bottom: 1px dashed var(--border);
-    }
+        .btn-danger {
+            border-color: var(--danger);
+            color: var(--danger);
+            padding: 6px 12px;
+            font-size: 10px;
+        }
 
-    .task-item:last-child { border-bottom: none; }
+        .btn-danger:hover {
+            background: var(--danger);
+            color: #fff;
+        }
 
-    .task-info h3 { 
-        margin: 0 0 5px 0; 
-        font-size: 1rem;
-        color: var(--primary);
-    }
+        /* ===== TASK LIST ===== */
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--border);
+        }
 
-    .task-info p { 
-        margin: 0; 
-        font-size: 0.8rem; 
-        color: var(--text-dim); 
-    }
+        .task-item:last-child { border-bottom: none; }
 
-    .completed h3 { 
-        text-decoration: line-through; 
-        color: var(--text-dim);
-        text-shadow: none;
-    }
+        .task-info { flex: 1; cursor: pointer; }
 
-    /* Modal */
-    .modal {
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #000000;
-        padding: 20px;
-        box-shadow: 0 -4px 20px rgba(0, 255, 65, 0.3);
-        z-index: 200;
-        border-top: 2px solid var(--primary);
-        border-top-left-radius: 4px;
-        border-top-right-radius: 4px;
-        color: var(--text);
-    }
+        .task-info h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
 
-    .modal.active { display: block; }
+        .task-info p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
 
-    .modal h2 {
-        color: var(--primary);
-        text-shadow: 0 0 10px var(--primary);
-    }
+        .completed h3 {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
 
-    .close-btn { 
-        position: absolute; 
-        top: 10px; 
-        right: 15px; 
-        background: none; 
-        color: var(--danger); 
-        width: auto; 
-        padding: 5px; 
-        font-size: 1.5rem;
-        border: none;
-    }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
 
-    .ios-guide { 
-        background: #0d1117;
-        border: 1px dashed var(--primary-dim);
-        padding: 15px; 
-        border-radius: 4px; 
-        margin-top: 15px; 
-        font-size: 0.85rem; 
-        line-height: 1.6;
-        color: var(--text-dim);
-    }
+        .badge-waiting { border: 1px solid var(--warning); color: var(--warning); }
+        .badge-done    { border: 1px solid var(--success); color: var(--success); }
 
-    .ios-guide strong {
-        color: var(--primary);
-    }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
 
-    .status-badge {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 2px;
-        font-size: 0.7rem;
-        font-weight: bold;
-        margin-left: 8px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
+        .empty-state::before { content: "[ "; }
+        .empty-state::after  { content: " ]"; }
 
-    .badge-waiting { 
-        background: transparent;
-        border: 1px solid #ffaa00;
-        color: #ffaa00;
-        text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
-    }
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            text-align: center;
+            letter-spacing: 1px;
+            font-family: 'Share Tech Mono', monospace;
+        }
 
-    .badge-done { 
-        background: transparent;
-        border: 1px solid var(--success);
-        color: var(--success);
-        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
-    }
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+            padding: 25px;
+            z-index: 200;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
 
-    /* Scrollbar แบบ terminal */
-    ::-webkit-scrollbar {
-        width: 8px;
-        background: #000;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: var(--primary-dim);
-        border-radius: 2px;
-    }
-</style>
+        .modal.active { display: block; }
+
+        .modal h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .modal p {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            padding: 5px;
+            width: auto;
+        }
+
+        .close-btn:hover { color: var(--danger); background: none; }
+
+        .ios-guide {
+            background: var(--bg);
+            border: 1px dashed var(--border);
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-dim);
+        }
+
+        .ios-guide strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 500px) {
+            .header-info h1 { font-size: 1.8rem; }
+            .avatar { width: 60px; height: 60px; font-size: 28px; }
+        }
+    </style>
 </head>
 <body>
 
     <header>
-        <h1>🔔 Task Reminder</h1>
-        <button id="installBtn" style="display: none; width: auto; padding: 8px 15px; font-size: 0.9rem;">📲 ติดตั้งแอป</button>
+        <div class="avatar">🔔</div>
+        <div class="header-info">
+            <h1>TASK_SYSTEM</h1>
+            <div class="subtitle">SUPPORTER</div>
+        </div>
     </header>
 
     <div class="container">
-        <!-- ฟอร์มเพิ่มงาน -->
+        <!-- ADD TASK -->
         <div class="card">
-            <h2>➕ เพิ่มงานแจ้งเตือน</h2>
+            <div class="card-title">NEW_TASK_ENTRY</div>
             <div class="form-group">
-                <label>ชื่องาน</label>
-                <input type="text" id="taskTitle" placeholder="เช่น ประชุมทีม, กินยา">
+                <label>TASK_NAME</label>
+                <input type="text" id="taskTitle" placeholder="ระบุชื่องาน...">
             </div>
             <div class="form-group">
-                <label>วันและเวลา</label>
+                <label>TARGET_TIME</label>
                 <input type="datetime-local" id="taskTime">
             </div>
-            <button onclick="addTask()">บันทึกและตั้งแจ้งเตือน</button>
-            <p style="font-size: 0.8rem; color: #6b7280; margin-top: 10px; text-align: center;">
-                * กรุณาอนุญาตการแจ้งเตือน (Notification) ในเบราว์เซอร์เพื่อให้ระบบทำงานได้
-            </p>
+            <button class="btn-primary" onclick="addTask()">[ EXECUTE ]</button>
+            <p class="hint">* กรุณาอนุญาตการแจ้งเตือน (Notification) ในเบราว์เซอร์</p>
         </div>
 
-        <!-- รายการงาน -->
+        <!-- TASK LIST -->
         <div class="card">
-            <h2>📋 รายการงาน</h2>
+            <div class="card-title">ACTIVE_TASKS</div>
             <div id="taskList">
-                <p style="text-align: center; color: #9ca3af;">ยังไม่มีงานในรายการ</p>
+                <div class="empty-state">NO_DATA_FOUND</div>
             </div>
         </div>
     </div>
 
-    <!-- Pop-up ติดตั้งแอป (Android/PC) -->
+    <!-- INSTALL MODAL -->
     <div id="installModal" class="modal">
-        <button class="close-btn" onclick="closeInstallModal()">&times;</button>
-        <h2>📲 ติดตั้งแอปพลิเคชัน</h2>
-        <p>เพิ่ม Task Reminder ลงบนหน้าจอหลักเพื่อใช้งานได้ง่ายขึ้น</p>
-        <button onclick="installPWA()" style="margin-top: 10px;">กดเพื่อติดตั้งแอป (INSTALL)</button>
-        
+        <button class="close-btn" onclick="closeInstallModal()">✕</button>
+        <h2>INSTALL_APPLICATION</h2>
+        <p>เพิ่ม TASK_SYSTEM ลงบนหน้าจอหลักเพื่อเข้าถึงได้รวดเร็ว</p>
+        <button id="installBtn" style="width:100%; margin-top:10px;" onclick="installPWA()">[ INSTALL ]</button>
         <div class="ios-guide">
-            <strong>📱 วิธีติดตั้งสำหรับ iPhone / iPad (Safari):</strong><br>
+            <strong>📱 iOS / iPadOS (Safari):</strong>
             1. แตะปุ่ม "แชร์ (Share)" ด้านล่างเบราว์เซอร์<br>
             2. เลือก "เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"
         </div>
@@ -364,11 +402,9 @@
         let tasks = JSON.parse(localStorage.getItem('pwa_tasks')) || [];
         let deferredPrompt;
 
-        // --- 1. ระบบแจ้งเตือน (Notification API) ---
-        if ("Notification" in window) {
-            if (Notification.permission === "default") {
-                Notification.requestPermission();
-            }
+        // Notification permission
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
         }
 
         function showNotification(title, body) {
@@ -378,16 +414,12 @@
                     icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>",
                     requireInteraction: true
                 });
-                notif.onclick = () => {
-                    window.focus();
-                    notif.close();
-                };
+                notif.onclick = () => { window.focus(); notif.close(); };
             } else {
-                alert("🔔 " + title + "\n" + body + "\n\n(กรุณาอนุญาตการแจ้งเตือนในตั้งค่าเบราว์เซอร์)");
+                alert("⚠️ " + title + "\n" + body);
             }
         }
 
-        // --- 2. ระบบจัดการงาน (Task Management) ---
         function saveTasks() {
             localStorage.setItem('pwa_tasks', JSON.stringify(tasks));
         }
@@ -397,24 +429,22 @@
             const time = document.getElementById('taskTime').value;
 
             if (!title || !time) {
-                alert("กรุณากรอกชื่องานและเวลาให้ครบถ้วน");
+                alert("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน");
                 return;
             }
 
-            const newTask = {
+            tasks.push({
                 id: Date.now(),
                 title: title,
                 time: time,
                 notified: false,
                 completed: false
-            };
+            });
 
-            tasks.push(newTask);
             tasks.sort((a, b) => new Date(a.time) - new Date(b.time));
             saveTasks();
             renderTasks();
-            
-            // Reset form
+
             document.getElementById('taskTitle').value = '';
             document.getElementById('taskTime').value = '';
         }
@@ -437,7 +467,7 @@
         function renderTasks() {
             const listEl = document.getElementById('taskList');
             if (tasks.length === 0) {
-                listEl.innerHTML = '<p style="text-align: center; color: #9ca3af;">ยังไม่มีงานในรายการ</p>';
+                listEl.innerHTML = '<div class="empty-state">NO_DATA_FOUND</div>';
                 return;
             }
 
@@ -449,33 +479,33 @@
                 
                 let statusBadge = '';
                 if (task.completed) {
-                    statusBadge = '<span class="status-badge badge-done">เสร็จสิ้น</span>';
+                    statusBadge = '<span class="status-badge badge-done">COMPLETED</span>';
                 } else if (!task.notified) {
-                    statusBadge = '<span class="status-badge badge-waiting">รอแจ้งเตือน</span>';
+                    statusBadge = '<span class="status-badge badge-waiting">PENDING</span>';
+                } else {
+                    statusBadge = '<span class="status-badge" style="border:1px solid var(--text-dim); color: var(--text-dim);">NOTIFIED</span>';
                 }
 
                 return `
                     <div class="task-item ${task.completed ? 'completed' : ''}">
-                        <div class="task-info" onclick="toggleComplete(${task.id})" style="cursor: pointer; flex: 1;">
+                        <div class="task-info" onclick="toggleComplete(${task.id})">
                             <h3>${task.title} ${statusBadge}</h3>
-                            <p>⏰ ${formattedTime}</p>
+                            <p>⏱ ${formattedTime}</p>
                         </div>
-                        <button class="btn-danger" onclick="deleteTask(${task.id})">ลบ</button>
+                        <button class="btn-danger" onclick="deleteTask(${task.id})">DEL</button>
                     </div>
                 `;
             }).join('');
         }
 
-        // --- 3. ระบบตรวจสอบเวลาและแจ้งเตือน (Background Check) ---
         function checkForNotifications() {
             const now = new Date().getTime();
             let hasChanges = false;
 
             tasks.forEach(task => {
                 const taskTime = new Date(task.time).getTime();
-                // ถ้าถึงเวลา และยังไม่เคยแจ้งเตือน และยังไม่เสร็จ
                 if (taskTime <= now && !task.notified && !task.completed) {
-                    showNotification("🔔 ถึงเวลางาน: " + task.title, "กำหนดเวลา: " + new Date(task.time).toLocaleString('th-TH'));
+                    showNotification("⚠️ TASK_ALERT: " + task.title, "เวลา: " + new Date(task.time).toLocaleString('th-TH'));
                     task.notified = true;
                     hasChanges = true;
                 }
@@ -486,39 +516,32 @@
                 renderTasks();
             }
         }
-
-        // ตรวจสอบทุก 1 วินาที
         setInterval(checkForNotifications, 1000);
 
-        // --- 4. ระบบ PWA Install Prompt ---
+        // PWA Install
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            document.getElementById('installBtn').style.display = 'block';
+            document.getElementById('installModal').classList.add('active');
         });
 
-        document.getElementById('installBtn').addEventListener('click', async () => {
-            document.getElementById('installModal').classList.add('active');
+        async function installPWA() {
             if (deferredPrompt) {
-                // ถ้าเป็น Android/Chrome จะโชว์ปุ่มติดตั้งจริง
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    closeInstallModal();
-                }
+                await deferredPrompt.userChoice;
                 deferredPrompt = null;
-                document.getElementById('installBtn').style.display = 'none';
+                closeInstallModal();
+            } else {
+                alert("เบราว์เซอร์นี้ไม่รองรับการติดตั้ง PWA โดยตรง");
             }
-        });
+        }
 
         function closeInstallModal() {
             document.getElementById('installModal').classList.remove('active');
         }
 
-        // --- Initial Load ---
+        // Init
         renderTasks();
-        
-        // ตั้งค่า datetime-local เริ่มต้นเป็นเวลาปัจจุบัน
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('taskTime').value = now.toISOString().slice(0, 16);
