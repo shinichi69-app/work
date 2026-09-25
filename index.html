@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
+<meta name="description" content="TASK_SYSTEM Progressive Web App">
+<meta name="mobile-web-app-capable" content="yes">
 
 <!-- iOS PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,6 +19,7 @@
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { min-height: 100%; }
   body {
     background: #050505;
     color: #e8e8e8;
@@ -27,22 +30,56 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
   }
+
   .card {
     background: #0d0d0d;
     border: 1px solid #00ff88;
     padding: 24px;
     border-radius: 8px;
-    max-width: 400px;
+    max-width: 430px;
     width: 100%;
     text-align: center;
     box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
   }
+
   h1 { font-size: 20px; color: #00ff88; margin-bottom: 12px; }
-  p { font-size: 13px; color: #999; margin-bottom: 20px; line-height: 1.5; }
-  .btn-install {
-    background: #00ff88;
-    color: #050505;
+  p { font-size: 13px; color: #999; margin-bottom: 18px; line-height: 1.6; }
+
+  .status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 18px;
+    padding: 8px 10px;
+    border: 1px solid #242424;
+    background: #090909;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #aaa;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffaa00;
+    box-shadow: 0 0 8px currentColor;
+  }
+  .dot.ready { background: #00ff88; }
+  .dot.off { background: #ff4d4d; }
+
+  .actions { display: grid; gap: 10px; }
+
+  button {
+    font-family: inherit;
+    transition: .18s ease;
+  }
+  button:active { transform: scale(.98); }
+
+  .btn-install, .btn-browser {
     border: none;
     padding: 12px 20px;
     font-size: 14px;
@@ -51,6 +88,26 @@
     cursor: pointer;
     border-radius: 4px;
   }
+
+  .btn-install {
+    background: #00ff88;
+    color: #050505;
+  }
+  .btn-install:hover { box-shadow: 0 0 18px rgba(0,255,136,.35); }
+
+  .btn-browser {
+    background: #171717;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+  }
+  .btn-browser:hover { background: #202020; }
+
+  .btn-install:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
   .ios-instructions {
     display: none;
     background: #111;
@@ -61,6 +118,40 @@
     margin-top: 15px;
     text-align: left;
     border-radius: 4px;
+    line-height: 1.7;
+  }
+
+  .note {
+    margin-top: 15px;
+    font-size: 10px;
+    color: #666;
+    line-height: 1.5;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    transform: translate(-50%, 20px);
+    opacity: 0;
+    pointer-events: none;
+    background: #101010;
+    border: 1px solid #00ff88;
+    color: #e8e8e8;
+    padding: 10px 14px;
+    border-radius: 5px;
+    font-size: 11px;
+    max-width: calc(100vw - 30px);
+    text-align: center;
+    transition: .22s ease;
+    z-index: 9999;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 480px) {
+    body { padding: 14px; }
+    .card { padding: 20px 16px; }
+    h1 { font-size: 18px; }
   }
 </style>
 </head>
@@ -68,60 +159,210 @@
 
 <div class="card">
   <h1>TASK_SYSTEM PWA</h1>
-  <p>ระบบกำลังเรียก Pop-up ติดตั้งแอปพลิเคชันลงบนมือถือของคุณ...</p>
-  
-  <button id="installBtn" class="btn-install" onclick="triggerInstall()">📲 กดเพื่อติดตั้งแอป (INSTALL)</button>
+  <p id="mainText">ระบบพร้อมสำหรับการติดตั้งเป็นแอปบนอุปกรณ์ของคุณ</p>
+
+  <div class="status">
+    <span id="statusDot" class="dot"></span>
+    <span id="statusText">กำลังตรวจสอบระบบ PWA...</span>
+  </div>
+
+  <div class="actions">
+    <button id="installBtn" class="btn-install" type="button">
+      📲 กดเพื่อติดตั้งแอป (INSTALL)
+    </button>
+
+    <button id="browserBtn" class="btn-browser" type="button">
+      🌐 เปิดหน้านี้ในเบราว์เซอร์
+    </button>
+  </div>
 
   <div id="iosBox" class="ios-instructions">
     📱 <strong>วิธีติดตั้งสำหรับ iPhone / iPad (Safari):</strong><br>
-    1. แตะปุ่ม <strong>"แชร์ (Share)"</strong> ด้านล่างเบราว์เซอร์<br>
-    2. เลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong>
+    1. แตะปุ่ม <strong>แชร์ (Share)</strong><br>
+    2. เลือก <strong>เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)</strong><br>
+    3. กด <strong>เพิ่ม (Add)</strong>
+  </div>
+
+  <div id="browserNote" class="note">
+    หากปุ่มติดตั้งยังไม่ขึ้น ให้เปิดไฟล์ผ่าน HTTPS หรือ localhost และตรวจสอบว่า manifest.json กับ sw.js อยู่โฟลเดอร์เดียวกับไฟล์นี้
   </div>
 </div>
 
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <script>
+(() => {
+  'use strict';
+
   let deferredPrompt = null;
+  let installCompleted = false;
+
   const installBtn = document.getElementById('installBtn');
+  const browserBtn = document.getElementById('browserBtn');
   const iosBox = document.getElementById('iosBox');
+  const statusText = document.getElementById('statusText');
+  const statusDot = document.getElementById('statusDot');
+  const toast = document.getElementById('toast');
+  const mainText = document.getElementById('mainText');
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  if (isIOS) {
-    installBtn.style.display = 'none';
-    iosBox.style.display = 'block';
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
-  // ดักจับ Event เมื่อเบราว์เซอร์พร้อมให้ติดตั้ง PWA
+  function setStatus(message, state) {
+    statusText.textContent = message;
+    statusDot.className = 'dot' + (state ? ' ' + state : '');
+  }
+
+  function isSecureEnough() {
+    return location.protocol === 'https:' ||
+      location.hostname === 'localhost' ||
+      location.hostname === '127.0.0.1';
+  }
+
+  // ตรวจสอบว่าเปิดเป็นแอปอยู่แล้วหรือไม่
+  if (isStandalone) {
+    installCompleted = true;
+    installBtn.textContent = '✅ เปิดใช้งานเป็นแอปแล้ว';
+    installBtn.disabled = true;
+    mainText.textContent = 'TASK_SYSTEM กำลังทำงานในโหมดแอป';
+    setStatus('PWA ACTIVE // Standalone Mode', 'ready');
+  } else if (isIOS) {
+    // iOS Safari ไม่รองรับ beforeinstallprompt จึงใช้คำแนะนำแทน
+    installBtn.style.display = 'none';
+    iosBox.style.display = 'block';
+    setStatus('iOS // ใช้ Add to Home Screen', '');
+  } else if (!isSecureEnough()) {
+    setStatus('ต้องเปิดผ่าน HTTPS หรือ localhost', 'off');
+  } else {
+    setStatus('รอเบราว์เซอร์อนุญาตการติดตั้ง...', '');
+  }
+
+  // รับ event ติดตั้ง PWA — ไม่บังคับ popup อัตโนมัติ
+  // เพราะเบราว์เซอร์บางรุ่นต้องการ user gesture จากการกดปุ่ม
   window.addEventListener('beforeinstallprompt', (e) => {
-    // ป้องกันไม่ให้ Chrome แสดง Banner แบบย่อด้านล่าง
     e.preventDefault();
     deferredPrompt = e;
-    
-    // สั่งให้ Pop-up ของระบบ Android เด้งขึ้นมากลางจอทันทีที่เปิดเว็บ!
-    setTimeout(() => {
-      triggerInstall();
-    }, 500);
+
+    if (!isStandalone && !installCompleted) {
+      installBtn.disabled = false;
+      installBtn.textContent = '📲 กดเพื่อติดตั้งแอป (INSTALL)';
+      setStatus('พร้อมติดตั้ง PWA', 'ready');
+    }
   });
 
   async function triggerInstall() {
-    if (deferredPrompt) {
-      deferredPrompt.prompt(); // แสดง Native Install Pop-up
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBtn.innerText = '✅ ติดตั้งเรียบร้อยแล้ว';
+    if (installCompleted || isStandalone) return;
+
+    if (isIOS) {
+      iosBox.style.display = 'block';
+      showToast('ใช้เมนู Share → Add to Home Screen');
+      return;
+    }
+
+    if (!deferredPrompt) {
+      if (!isSecureEnough()) {
+        showToast('ต้องเปิดผ่าน HTTPS หรือ localhost ก่อนติดตั้ง PWA');
+        return;
       }
+      showToast('เบราว์เซอร์ยังไม่พร้อมสำหรับการติดตั้ง ลองโหลดหน้าใหม่อีกครั้ง');
+      return;
+    }
+
+    installBtn.disabled = true;
+
+    try {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+
+      if (result && result.outcome === 'accepted') {
+        installCompleted = true;
+        installBtn.textContent = '✅ ติดตั้งเรียบร้อยแล้ว';
+        setStatus('ติดตั้งสำเร็จ', 'ready');
+        showToast('ติดตั้ง TASK_SYSTEM สำเร็จ');
+      } else {
+        installBtn.disabled = false;
+        installBtn.textContent = '📲 กดเพื่อติดตั้งแอป (INSTALL)';
+        setStatus('ยกเลิกการติดตั้ง — กดปุ่มอีกครั้งได้', '');
+      }
+    } catch (err) {
+      console.error('[PWA] Install failed:', err);
+      installBtn.disabled = false;
+      showToast('ไม่สามารถเปิดหน้าต่างติดตั้งได้ในขณะนี้');
+    } finally {
       deferredPrompt = null;
     }
   }
 
+  installBtn.addEventListener('click', triggerInstall);
+
+  // เปิด URL เดิมในแท็บใหม่เมื่อเบราว์เซอร์อนุญาต
+  browserBtn.addEventListener('click', () => {
+    const url = window.location.href;
+    const opened = window.open(url, '_blank', 'noopener,noreferrer');
+
+    if (!opened) {
+      // กรณี browser block popup ให้ใช้ URL เดิมแทน
+      showToast('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ — กำลังใช้หน้านี้แทน');
+      try {
+        window.location.href = url;
+      } catch (_) {}
+    }
+  });
+
+  // ตรวจสอบหลังติดตั้งเสร็จ
+  window.addEventListener('appinstalled', () => {
+    installCompleted = true;
+    deferredPrompt = null;
+    installBtn.textContent = '✅ ติดตั้งเรียบร้อยแล้ว';
+    installBtn.disabled = true;
+    setStatus('PWA INSTALLED', 'ready');
+    showToast('TASK_SYSTEM ถูกติดตั้งแล้ว');
+  });
+
   // ลงทะเบียน Service Worker
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('[PWA] Service Worker Registered!'))
-        .catch(err => console.error('[PWA] Service Worker Failed:', err));
+    window.addEventListener('load', async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('./sw.js');
+        console.log('[PWA] Service Worker Registered:', registration.scope);
+
+        if (!isStandalone && !isIOS && isSecureEnough() && !deferredPrompt) {
+          setStatus('Service Worker พร้อม // รอปุ่ม INSTALL', 'ready');
+        }
+      } catch (err) {
+        console.error('[PWA] Service Worker Failed:', err);
+        if (!isIOS && !isStandalone) {
+          setStatus('Service Worker ยังไม่พร้อม', 'off');
+          showToast('ไม่พบ sw.js หรือ Service Worker ยังลงทะเบียนไม่ได้');
+        }
+      }
     });
+  } else if (!isIOS && !isStandalone) {
+    setStatus('เบราว์เซอร์นี้ไม่รองรับ Service Worker', 'off');
   }
+
+  // แจ้งสถานะการเปลี่ยน display-mode
+  window.matchMedia('(display-mode: standalone)').addEventListener?.('change', (e) => {
+    if (e.matches) {
+      installCompleted = true;
+      installBtn.textContent = '✅ เปิดใช้งานเป็นแอปแล้ว';
+      installBtn.disabled = true;
+      setStatus('PWA ACTIVE // Standalone Mode', 'ready');
+    }
+  });
+})();
 </script>
 </body>
 </html>
