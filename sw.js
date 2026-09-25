@@ -1,11 +1,13 @@
-const CACHE_NAME = 'task-system-v1';
+const CACHE_NAME = 'task-pwa-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
-// ติดตั้ง Service Worker และทำ Caching ไฟล์
+// ติดตั้ง Service Worker และบันทึกไฟล์ลง Cache
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -15,7 +17,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// ดึงข้อมูลจาก Cache เมื่อ Offline
+// เรียกใช้งานจาก Cache เมื่อ Offline
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -24,7 +26,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// อัปเดต Cache เวอร์ชันใหม่
+// ล้าง Cache เก่าออกเมื่อมีเวอร์ชันใหม่
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
