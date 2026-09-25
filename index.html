@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TaskSystem">
-<link rel="apple-touch-icon" href="https://via.placeholder.com/192/050505/00ff88?text=TASK">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <title>TASK_SYSTEM // PWA</title>
 <link rel="manifest" href="manifest.json">
@@ -50,12 +50,6 @@
     width: 100%;
     cursor: pointer;
     border-radius: 4px;
-    transition: 0.2s;
-  }
-  .btn-install:disabled {
-    background: #333;
-    color: #666;
-    cursor: not-allowed;
   }
   .ios-instructions {
     display: none;
@@ -74,14 +68,14 @@
 
 <div class="card">
   <h1>TASK_SYSTEM PWA</h1>
-  <p>แอปพลิเคชันจัดการงานแบบ PWA สามารถติดตั้งลงหน้าจอมือถือเพื่อใช้งานแบบแอปพลิเคชันได้ทันที</p>
+  <p>ระบบกำลังเรียก Pop-up ติดตั้งแอปพลิเคชันลงบนมือถือของคุณ...</p>
   
-  <button id="installBtn" class="btn-install" onclick="installApp()">📲 ติดตั้งลงมือถือ (INSTALL)</button>
+  <button id="installBtn" class="btn-install" onclick="triggerInstall()">📲 กดเพื่อติดตั้งแอป (INSTALL)</button>
 
   <div id="iosBox" class="ios-instructions">
     📱 <strong>วิธีติดตั้งสำหรับ iPhone / iPad (Safari):</strong><br>
     1. แตะปุ่ม <strong>"แชร์ (Share)"</strong> ด้านล่างเบราว์เซอร์<br>
-    2. เลื่อนลงมาเลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong>
+    2. เลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong>
   </div>
 </div>
 
@@ -90,7 +84,6 @@
   const installBtn = document.getElementById('installBtn');
   const iosBox = document.getElementById('iosBox');
 
-  // ตรวจสอบอุปกรณ์ว่าเป็น iOS หรือไม่
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   if (isIOS) {
@@ -98,25 +91,26 @@
     iosBox.style.display = 'block';
   }
 
-  // จับ Event ติดตั้งของ Android / Desktop
+  // ดักจับ Event เมื่อเบราว์เซอร์พร้อมให้ติดตั้ง PWA
   window.addEventListener('beforeinstallprompt', (e) => {
+    // ป้องกันไม่ให้ Chrome แสดง Banner แบบย่อด้านล่าง
     e.preventDefault();
     deferredPrompt = e;
-    installBtn.disabled = false;
-    installBtn.innerText = '📲 กดเพื่อติดตั้งแอปพลิเคชัน';
+    
+    // สั่งให้ Pop-up ของระบบ Android เด้งขึ้นมากลางจอทันทีที่เปิดเว็บ!
+    setTimeout(() => {
+      triggerInstall();
+    }, 500);
   });
 
-  async function installApp() {
+  async function triggerInstall() {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
+      deferredPrompt.prompt(); // แสดง Native Install Pop-up
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         installBtn.innerText = '✅ ติดตั้งเรียบร้อยแล้ว';
-        installBtn.disabled = true;
       }
       deferredPrompt = null;
-    } else {
-      alert('หากรันบนเบราว์เซอร์มือถือ ให้กดเมนูจุด 3 จุด แล้วเลือก "ติดตั้งแอป" หรือ "Add to Home Screen" ได้เลยค่ะ');
     }
   }
 
@@ -124,8 +118,8 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('SW Registered!', reg))
-        .catch(err => console.error('SW Error:', err));
+        .then(reg => console.log('[PWA] Service Worker Registered!'))
+        .catch(err => console.error('[PWA] Service Worker Failed:', err));
     });
   }
 </script>
