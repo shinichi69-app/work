@@ -4,104 +4,313 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Reminder PWA</title>
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #1f2937;
-            --danger: #ef4444;
-            --success: #10b981;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            padding-bottom: 80px;
-        }
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        header h1 { margin: 0; font-size: 1.2rem; }
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .card {
-            background: var(--card);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #d1d5db;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: opacity 0.2s;
-        }
-        button:active { opacity: 0.8; }
-        .btn-danger { background: var(--danger); padding: 8px 12px; width: auto; font-size: 0.8rem;}
-        .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .task-item:last-child { border-bottom: none; }
-        .task-info h3 { margin: 0 0 5px 0; font-size: 1rem; }
-        .task-info p { margin: 0; font-size: 0.8rem; color: #6b7280; }
-        .completed h3 { text-decoration: line-through; color: #9ca3af; }
-        
-        /* PWA Install & iOS Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 20px;
-            box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-            z-index: 200;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
-        .modal.active { display: block; }
-        .close-btn { position: absolute; top: 10px; right: 15px; background: none; color: #6b7280; width: auto; padding: 5px; font-size: 1.5rem;}
-        .ios-guide { background: #eff6ff; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; line-height: 1.6;}
-        .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-        .badge-waiting { background: #fef3c7; color: #92400e; }
-        .badge-done { background: #d1fae5; color: #065f46; }
-    </style>
+<style>
+    :root {
+        --primary: #00ff41;          /* เขียวเรืองแสงแบบ Matrix */
+        --primary-dim: #008f11;      /* เขียวเข้มสำหรับ hover */
+        --bg: #0a0e0a;               /* ดำสนิทแบบ terminal */
+        --card: #0d1117;             /* ดำเทาเข้มแบบ GitHub Dark */
+        --text: #00ff41;             /* ตัวอักษรสีเขียว */
+        --text-dim: #4a7c4a;         /* เขียวจางสำหรับ secondary */
+        --danger: #ff0033;           /* แดงแบบ error terminal */
+        --success: #00ff41;
+        --border: #00ff4133;         /* ขอบเขียวโปร่งแสง */
+    }
+
+    * {
+        font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    }
+
+    body {
+        background-color: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 0;
+        padding-bottom: 80px;
+        background-image: 
+            linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
+        background-size: 20px 20px;
+        min-height: 100vh;
+    }
+
+    /* เอฟเฟกต์ scanline แบบจอ CRT */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.15),
+            rgba(0, 0, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        );
+        pointer-events: none;
+        z-index: 9999;
+    }
+
+    header {
+        background: #000000;
+        color: var(--primary);
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 2px solid var(--primary);
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+
+    header h1 { 
+        margin: 0; 
+        font-size: 1.2rem; 
+        text-shadow: 0 0 10px var(--primary);
+        letter-spacing: 2px;
+    }
+
+    header h1::before {
+        content: "> ";
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
+    }
+
+    .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+        position: relative;
+    }
+
+    .card::before {
+        content: "┌─ SYSTEM ─┐";
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        background: var(--card);
+        padding: 0 8px;
+        color: var(--primary-dim);
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .card h2 {
+        color: var(--primary);
+        font-size: 1rem;
+        margin-top: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    }
+
+    .form-group { margin-bottom: 15px; }
+
+    label { 
+        display: block; 
+        margin-bottom: 5px; 
+        font-weight: 600; 
+        font-size: 0.85rem;
+        color: var(--primary-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    label::before {
+        content: "$ ";
+        color: var(--primary);
+    }
+
+    input, button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 2px;
+        border: 1px solid var(--border);
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    input {
+        background: #000000;
+        color: var(--primary);
+        caret-color: var(--primary);
+    }
+
+    input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+    }
+
+    input::placeholder {
+        color: var(--text-dim);
+        font-style: italic;
+    }
+
+    button {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        cursor: pointer;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.2s;
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    }
+
+    button:hover {
+        background: var(--primary);
+        color: #000000;
+        box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+        text-shadow: none;
+    }
+
+    button:active { 
+        transform: scale(0.98);
+    }
+
+    .btn-danger { 
+        background: transparent;
+        color: var(--danger); 
+        border: 1px solid var(--danger);
+        padding: 6px 10px; 
+        width: auto; 
+        font-size: 0.75rem;
+        text-shadow: 0 0 5px rgba(255, 0, 51, 0.5);
+    }
+
+    .btn-danger:hover {
+        background: var(--danger);
+        color: #000;
+        box-shadow: 0 0 15px rgba(255, 0, 51, 0.6);
+    }
+
+    .task-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px dashed var(--border);
+    }
+
+    .task-item:last-child { border-bottom: none; }
+
+    .task-info h3 { 
+        margin: 0 0 5px 0; 
+        font-size: 1rem;
+        color: var(--primary);
+    }
+
+    .task-info p { 
+        margin: 0; 
+        font-size: 0.8rem; 
+        color: var(--text-dim); 
+    }
+
+    .completed h3 { 
+        text-decoration: line-through; 
+        color: var(--text-dim);
+        text-shadow: none;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #000000;
+        padding: 20px;
+        box-shadow: 0 -4px 20px rgba(0, 255, 65, 0.3);
+        z-index: 200;
+        border-top: 2px solid var(--primary);
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        color: var(--text);
+    }
+
+    .modal.active { display: block; }
+
+    .modal h2 {
+        color: var(--primary);
+        text-shadow: 0 0 10px var(--primary);
+    }
+
+    .close-btn { 
+        position: absolute; 
+        top: 10px; 
+        right: 15px; 
+        background: none; 
+        color: var(--danger); 
+        width: auto; 
+        padding: 5px; 
+        font-size: 1.5rem;
+        border: none;
+    }
+
+    .ios-guide { 
+        background: #0d1117;
+        border: 1px dashed var(--primary-dim);
+        padding: 15px; 
+        border-radius: 4px; 
+        margin-top: 15px; 
+        font-size: 0.85rem; 
+        line-height: 1.6;
+        color: var(--text-dim);
+    }
+
+    .ios-guide strong {
+        color: var(--primary);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 2px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        margin-left: 8px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .badge-waiting { 
+        background: transparent;
+        border: 1px solid #ffaa00;
+        color: #ffaa00;
+        text-shadow: 0 0 5px rgba(255, 170, 0, 0.5);
+    }
+
+    .badge-done { 
+        background: transparent;
+        border: 1px solid var(--success);
+        color: var(--success);
+        text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
+    }
+
+    /* Scrollbar แบบ terminal */
+    ::-webkit-scrollbar {
+        width: 8px;
+        background: #000;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-dim);
+        border-radius: 2px;
+    }
+</style>
 </head>
 <body>
 
