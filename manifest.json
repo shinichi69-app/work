@@ -1,0 +1,22 @@
+{
+  "name": "TASK_SYSTEM // Daily Task Manager",
+  "short_name": "TASK_SYS",
+  "description": "ระบบจัดลำดับงานประจำวันพร้อมแจ้งเตือน",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050505",
+  "theme_color": "#050505",
+  "lang": "th",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "
