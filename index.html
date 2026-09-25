@@ -4,684 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050505">
+
+<!-- iOS PWA Meta Tags -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TaskSystem">
+<link rel="apple-touch-icon" href="https://via.placeholder.com/192/050505/00ff88?text=TASK">
+
 <title>TASK_SYSTEM // PWA</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #050505;
-    --panel: #0d0d0d;
-    --panel-2: #111111;
-    --border: #1f1f1f;
-    --border-2: #2a2a2a;
-    --grid: rgba(255,255,255,0.03);
-    --text: #e8e8e8;
-    --text-dim: #6a6a6a;
-    --text-mid: #999;
-    --green: #00ff88;
-    --red: #ff3355;
-    --amber: #ffaa00;
-    --cyan: #00d9ff;
-  }
-
-  html, body { height: 100%; }
-
   body {
+    background: #050505;
+    color: #e8e8e8;
     font-family: 'JetBrains Mono', 'Sarabun', monospace;
-    background: var(--bg);
-    color: var(--text);
     padding: 20px;
-    padding-top: max(20px, env(safe-area-inset-top));
-    padding-bottom: max(20px, env(safe-area-inset-bottom));
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Grid Background Effect */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    max-width: 780px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-    background: rgba(10,10,10,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    padding: 28px;
-  }
-  .container::before, .container::after {
-    content: '';
-    position: absolute;
-    width: 12px; height: 12px;
-    border: 1px solid var(--text-mid);
-  }
-  .container::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
-  .container::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
-
-  .header {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  .header-left { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-  .logo-mark {
-    color: var(--text-mid);
-    font-size: 10px;
-    letter-spacing: 2px;
-    border: 1px solid var(--border-2);
-    padding: 3px 8px;
-  }
-  h1 { font-size: 20px; font-weight: 700; letter-spacing: 4px; color: #fff; text-transform: uppercase; }
-  h1 .accent { color: var(--green); }
-
-  .header-right { display: flex; gap: 8px; align-items: center; }
-  .sys-badge {
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    color: var(--text-mid);
-    border: 1px solid var(--border-2);
-    padding: 5px 10px;
-    background: rgba(255,255,255,0.02);
-  }
-  .sys-badge .val { color: var(--green); font-weight: 600; }
-  .sys-badge .dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    margin-right: 6px;
-    box-shadow: 0 0 6px var(--green);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-  .install-btn {
-    background: var(--green);
-    color: var(--bg);
-    border: none;
-    padding: 8px 14px;
-    font-family: inherit;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    cursor: pointer;
-    box-shadow: 0 0 15px rgba(0,255,136,0.3);
-    transition: all 0.2s;
-  }
-  .install-btn:hover { background: #fff; box-shadow: 0 0 25px rgba(255,255,255,0.8); }
-
-  .subtitle { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; margin-bottom: 20px; text-transform: uppercase; }
-  .subtitle::before { content: '> '; color: var(--green); }
-
-  .thai-clock {
-    border: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
-    padding: 20px 24px;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  .thai-clock::before {
-    content: 'SYS_TIME';
-    position: absolute;
-    top: -1px; left: 12px;
-    background: var(--bg);
-    padding: 0 8px;
-    font-size: 9px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    transform: translateY(-50%);
-  }
-  .thai-clock .time { font-size: 34px; font-weight: 300; letter-spacing: 4px; color: #fff; font-variant-numeric: tabular-nums; }
-  .thai-clock .time .sec { color: var(--green); font-size: 20px; }
-  .thai-clock .period { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
-  .thai-clock .period .hl { color: var(--cyan); }
-  .thai-clock .date { font-size: 11px; color: var(--text-mid); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-2); letter-spacing: 1px; }
-
-  /* Quick Control Bar */
-  .quick-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  button {
-    padding: 12px 22px;
-    border: 1px solid var(--border-2);
-    background: transparent;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  button.primary { background: var(--green); color: var(--bg); border-color: var(--green); }
-  button.primary:hover { background: #fff; border-color: #fff; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
-
-  .notify-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    font-size: 11px;
-    margin-bottom: 18px;
-    color: var(--text-mid);
-    letter-spacing: 1px;
-    cursor: pointer;
-  }
-  .notify-toggle input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--green); }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    margin-bottom: 18px;
-  }
-  .stats > div { background: var(--panel); padding: 14px; text-align: center; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); }
-  .stats span strong { display: block; font-size: 22px; font-weight: 300; color: #fff; margin-bottom: 4px; font-variant-numeric: tabular-nums; }
-  .stats > div:nth-child(2) span strong { color: var(--green); }
-  .stats > div:nth-child(3) span strong { color: var(--amber); }
-
-  ul { list-style: none; }
-  li {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--panel);
-    padding: 14px 16px;
-    margin-bottom: 6px;
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--text-mid);
-    transition: all 0.2s;
-  }
-  li:hover { background: var(--panel-2); border-color: var(--border-2); border-left-color: var(--cyan); }
-  li.done { opacity: 0.4; border-left-color: var(--green); background: #080808; }
-  li.done .task-text { text-decoration: line-through; color: var(--text-dim); }
-  li.overdue { border-left-color: var(--red); background: linear-gradient(90deg, rgba(255,51,85,0.06), transparent 60%); }
-  li.soon { border-left-color: var(--amber); background: linear-gradient(90deg, rgba(255,170,0,0.06), transparent 60%); }
-
-  .task-info { flex: 1; cursor: pointer; }
-  .task-text { font-size: 13px; color: var(--text); letter-spacing: 0.3px; word-break: break-word; }
-  .task-time { font-size: 10px; color: var(--text-dim); margin-top: 5px; letter-spacing: 1.5px; text-transform: uppercase; }
-
-  .badge { display: inline-block; font-size: 9px; font-weight: 600; padding: 2px 7px; margin-left: 8px; letter-spacing: 1px; border: 1px solid transparent; }
-  .badge.soon { border-color: var(--amber); color: var(--amber); }
-  .badge.overdue { border-color: var(--red); color: var(--red); }
-
-  .icon-btn { background: transparent; color: var(--text-dim); padding: 6px 10px; font-size: 14px; border: 1px solid transparent; }
-  .icon-btn:hover { background: rgba(255,51,85,0.1); color: var(--red); border-color: var(--red); }
-
-  /* ===== CYBER POPUP MODAL STYLES ===== */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.25s ease;
-    padding: 20px;
+    min-height: 100vh;
   }
-  .modal-overlay.active { opacity: 1; pointer-events: auto; }
-
-  .cyber-modal {
-    background: #0a0a0a;
-    border: 1px solid var(--green);
-    box-shadow: 0 0 35px rgba(0, 255, 136, 0.25);
+  .card {
+    background: #0d0d0d;
+    border: 1px solid #00ff88;
+    padding: 24px;
+    border-radius: 8px;
+    max-width: 400px;
     width: 100%;
-    max-width: 480px;
-    padding: 28px;
-    position: relative;
-    transform: scale(0.9);
-    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
   }
-  .modal-overlay.active .cyber-modal { transform: scale(1); }
-
-  .cyber-modal::before, .cyber-modal::after {
-    content: '';
-    position: absolute;
-    width: 12px; height: 12px;
-    border: 2px solid var(--green);
-  }
-  .cyber-modal::before { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-  .cyber-modal::after { bottom: -2px; right: -2px; border-left: none; border-top: none; }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px dashed var(--border-2);
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-  }
-  .modal-title { font-size: 12px; font-weight: 700; color: var(--green); letter-spacing: 2px; }
-  .close-btn { background: transparent; border: none; color: var(--text-dim); font-size: 18px; cursor: pointer; padding: 0; }
-  .close-btn:hover { color: var(--red); }
-
-  select, input[type="text"] {
-    background: #111;
-    border: 1px solid var(--border-2);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    padding: 12px;
-    border-radius: 0;
-  }
-  select:focus, input[type="text"]:focus {
-    outline: none;
-    border-color: var(--green);
-    box-shadow: 0 0 10px rgba(0,255,136,0.2);
-  }
-
-  /* Toast Update */
-  .update-toast {
-    position: fixed;
-    bottom: 20px; left: 50%;
-    transform: translateX(-50%) translateY(120%);
-    background: var(--panel-2);
-    border: 1px solid var(--green);
-    color: var(--text);
+  h1 { font-size: 20px; color: #00ff88; margin-bottom: 12px; }
+  p { font-size: 13px; color: #999; margin-bottom: 20px; line-height: 1.5; }
+  .btn-install {
+    background: #00ff88;
+    color: #050505;
+    border: none;
     padding: 12px 20px;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    z-index: 9999;
-    transition: transform 0.4s;
-    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
   }
-  .update-toast.show { transform: translateX(-50%) translateY(0); }
-
-  .offline-badge {
-    position: fixed; top: 10px; right: 10px;
-    background: var(--amber); color: var(--bg);
-    padding: 6px 12px; font-size: 10px; font-weight: 700;
-    z-index: 9998; display: none;
+  .btn-install:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
   }
-  .offline-badge.show { display: block; }
+  .ios-instructions {
+    display: none;
+    background: #111;
+    border: 1px dashed #ffaa00;
+    color: #ffaa00;
+    padding: 12px;
+    font-size: 12px;
+    margin-top: 15px;
+    text-align: left;
+    border-radius: 4px;
+  }
 </style>
 </head>
 <body>
 
-<div class="offline-badge" id="offlineBadge">⚠ OFFLINE_MODE</div>
+<div class="card">
+  <h1>TASK_SYSTEM PWA</h1>
+  <p>แอปพลิเคชันจัดการงานแบบ PWA สามารถติดตั้งลงหน้าจอมือถือเพื่อใช้งานแบบแอปพลิเคชันได้ทันที</p>
+  
+  <button id="installBtn" class="btn-install" onclick="installApp()">📲 ติดตั้งลงมือถือ (INSTALL)</button>
 
-<div class="container">
-  <div class="header">
-    <div class="header-left">
-      <span class="logo-mark">SYS.01</span>
-      <h1>TASK<span class="accent">_</span>SYSTEM</h1>
-    </div>
-    <div class="header-right">
-      <div class="sys-badge"><span class="dot"></span>STATUS // <span class="val">ONLINE</span></div>
-      <button class="install-btn" onclick="openInstallModal()">⬇ INSTALL PWA</button>
-    </div>
+  <div id="iosBox" class="ios-instructions">
+    📱 <strong>วิธีติดตั้งสำหรับ iPhone / iPad (Safari):</strong><br>
+    1. แตะปุ่ม <strong>"แชร์ (Share)"</strong> ด้านล่างเบราว์เซอร์<br>
+    2. เลื่อนลงมาเลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong>
   </div>
-
-  <p class="subtitle">Daily task scheduler &amp; notification module</p>
-
-  <div class="thai-clock">
-    <div class="clock-row">
-      <div class="time" id="clockTime">--:--<span class="sec">:--</span></div>
-      <div class="period" id="clockPeriod">--</div>
-    </div>
-    <div class="date" id="clockDate">--</div>
-  </div>
-
-  <div class="quick-bar">
-    <button class="primary" style="width: 100%;" onclick="openAddTaskModal()">+ CREATE NEW TASK (POPUP)</button>
-  </div>
-
-  <label class="notify-toggle">
-    <input type="checkbox" id="notifyToggle" checked>
-    <span>// ENABLE_NOTIFICATIONS</span>
-  </label>
-
-  <div class="stats">
-    <div>ALL<span><strong id="statAll">0</strong></span></div>
-    <div>DONE<span><strong id="statDone">0</strong></span></div>
-    <div>PENDING<span><strong id="statPending">0</strong></span></div>
-  </div>
-
-  <ul id="taskList"></ul>
-</div>
-
-<!-- ================= POPUP MODAL: ADD TASK ================= -->
-<div class="modal-overlay" id="taskModal">
-  <div class="cyber-modal">
-    <div class="modal-header">
-      <span class="modal-title">// CREATE_NEW_TASK</span>
-      <button class="close-btn" onclick="closeModal('taskModal')">✕</button>
-    </div>
-    
-    <div style="display: flex; flex-direction: column; gap: 14px;">
-      <div>
-        <label style="font-size: 10px; color: var(--text-dim); letter-spacing: 1px; display: block; margin-bottom: 6px;">// TASK_NAME</label>
-        <input type="text" id="modalTaskInput" placeholder="ป้อนชื่องาน..." maxlength="80" style="width: 100%;">
-      </div>
-
-      <div>
-        <label style="font-size: 10px; color: var(--text-dim); letter-spacing: 1px; display: block; margin-bottom: 6px;">// SCHEDULE_TIME</label>
-        <div style="display: flex; gap: 6px; align-items: center;">
-          <select id="modalHourInput" style="flex: 1;"></select>
-          <span style="color: var(--green); font-weight: bold;">:</span>
-          <select id="modalMinuteInput" style="flex: 1;"></select>
-          <select id="modalPeriodInput" style="color: var(--cyan); font-weight: bold;">
-            <option value="AM">AM</option>
-            <option value="PM">PM</option>
-          </select>
-        </div>
-      </div>
-
-      <button class="primary" style="margin-top: 10px;" onclick="addTaskFromModal()">+ SAVE TASK TO QUEUE</button>
-    </div>
-  </div>
-</div>
-
-<!-- ================= POPUP MODAL: PWA INSTALL ================= -->
-<div class="modal-overlay" id="pwaModal">
-  <div class="cyber-modal">
-    <div class="modal-header">
-      <span class="modal-title">// INSTALL_PWA_MODULE</span>
-      <button class="close-btn" onclick="closeModal('pwaModal')">✕</button>
-    </div>
-    <p style="font-size: 12px; color: var(--text-mid); line-height: 1.6; margin-bottom: 16px;">
-      ติดตั้งแอปพลิเคชันลงบนอุปกรณ์เพื่อใช้งาน Offline เต็มรูปแบบและรองรับระบบแจ้งเตือน
-    </p>
-    <div id="pwaInstallAction">
-      <button class="primary" style="width: 100%;" onclick="triggerPWAInstall()">INSTALL TO DEVICE</button>
-    </div>
-    <div id="iosGuidance" style="display: none; font-size: 11px; color: var(--amber); border: 1px solid var(--amber); padding: 12px; margin-top: 10px;">
-      ℹ สำหรับ iOS Safari: แตะที่ปุ่ม <strong>"แชร์ (Share)"</strong> ด้านล่างเบราว์เซอร์ แล้วเลือก <strong>"เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"</strong>
-    </div>
-  </div>
-</div>
-
-<!-- Update Toast -->
-<div class="update-toast" id="updateToast">
-  <span>🔄 มีเวอร์ชันใหม่</span>
-  <button class="primary" style="padding: 6px 12px; font-size: 10px;" onclick="applyUpdate()">UPDATE</button>
 </div>
 
 <script>
-  const STORAGE_KEY = 'shinichi_tasks_v1';
-  const NOTIFIED_KEY = 'shinichi_notified_v1';
-  const notifiedSet = new Set(JSON.parse(localStorage.getItem(NOTIFIED_KEY) || '[]'));
-  let tasks = [];
   let deferredPrompt = null;
-  let swRegistration = null;
+  const installBtn = document.getElementById('installBtn');
+  const iosBox = document.getElementById('iosBox');
 
-  // ===== Thai Time Conversion Helpers =====
-  const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  const THAI_DAYS = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  // ตรวจสอบอุปกรณ์ว่าเป็น iOS หรือไม่
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-  const toBuddhistYear = y => y + 543;
-  function to12Hour(h24) {
-    const period = h24 < 12 ? 'AM' : 'PM';
-    let h12 = h24 % 12; if (h12 === 0) h12 = 12;
-    return { h12, period };
-  }
-  function to24Hour(h12, period) {
-    let h = parseInt(h12, 10);
-    if (period === 'AM') { if (h === 12) h = 0; }
-    else { if (h !== 12) h += 12; }
-    return h;
-  }
-  function thaiPeriod(h24) {
-    if (h24 < 6)  return 'กลางคืน';
-    if (h24 < 12) return 'เช้า';
-    if (h24 < 13) return 'เที่ยง';
-    if (h24 < 16) return 'บ่าย';
-    if (h24 < 18) return 'เย็น';
-    return 'ค่ำ';
-  }
-  function formatThaiTime(h24, m) {
-    return `${String(h24).padStart(2,'0')}:${String(m).padStart(2,'0')} น. (${thaiPeriod(h24)})`;
+  if (isIOS) {
+    installBtn.style.display = 'none';
+    iosBox.style.display = 'block';
   }
 
-  // ===== Real-time Clock =====
-  function updateClock() {
-    const now = new Date();
-    const h24 = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
-    const { h12, period } = to12Hour(h24);
-    document.getElementById('clockTime').innerHTML =
-      `${String(h12).padStart(2,'0')}:${String(m).padStart(2,'0')}<span class="sec">:${String(s).padStart(2,'0')}</span>`;
-    document.getElementById('clockPeriod').innerHTML =
-      `${period} // <span class="hl">${thaiPeriod(h24)}</span> // ${h24}:${String(m).padStart(2,'0')} น.`;
-    document.getElementById('clockDate').textContent =
-      `วัน${THAI_DAYS[now.getDay()]}ที่ ${now.getDate()} ${THAI_MONTHS[now.getMonth()]} พ.ศ. ${toBuddhistYear(now.getFullYear())}`;
-  }
-
-  // ===== Modal & Time Picker Logic =====
-  function initModalTimePickers() {
-    const hourSel = document.getElementById('modalHourInput');
-    const minSel = document.getElementById('modalMinuteInput');
-    hourSel.innerHTML = ''; minSel.innerHTML = '';
-
-    for (let h = 1; h <= 12; h++) {
-      const o = document.createElement('option');
-      o.value = h; o.textContent = String(h).padStart(2,'0');
-      hourSel.appendChild(o);
-    }
-    for (let m = 0; m < 60; m += 5) {
-      const o = document.createElement('option');
-      o.value = m; o.textContent = String(m).padStart(2,'0');
-      minSel.appendChild(o);
-    }
-  }
-
-  function openAddTaskModal() {
-    initModalTimePickers();
-    const now = new Date();
-    const { h12, period } = to12Hour(now.getHours());
-    
-    document.getElementById('modalHourInput').value = h12;
-    const roundedMin = Math.ceil(now.getMinutes() / 5) * 5 % 60;
-    document.getElementById('modalMinuteInput').value = roundedMin;
-    document.getElementById('modalPeriodInput').value = period;
-
-    document.getElementById('taskModal').classList.add('active');
-    setTimeout(() => document.getElementById('modalTaskInput').focus(), 100);
-  }
-
-  function openInstallModal() {
-    const modal = document.getElementById('pwaModal');
-    modal.classList.add('active');
-    
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-      document.getElementById('pwaInstallAction').style.display = 'none';
-      document.getElementById('iosGuidance').style.display = 'block';
-    }
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-  }
-
-  function addTaskFromModal() {
-    const textEl = document.getElementById('modalTaskInput');
-    const text = textEl.value.trim();
-    if (!text) { textEl.focus(); return; }
-
-    const h12 = document.getElementById('modalHourInput').value;
-    const m = document.getElementById('modalMinuteInput').value;
-    const period = document.getElementById('modalPeriodInput').value;
-    const h24 = to24Hour(h12, period);
-    const time24 = String(h24).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-
-    tasks.push({
-      id: Date.now().toString(),
-      text,
-      time24,
-      timeThai: formatThaiTime(h24, parseInt(m,10)),
-      hour24: h24,
-      minute: parseInt(m,10),
-      done: false,
-      createdAt: Date.now()
-    });
-
-    textEl.value = '';
-    closeModal('taskModal');
-    sortTasks(); save(); render();
-  }
-
-  // ===== Storage & Render Logic =====
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) tasks = JSON.parse(raw);
-    } catch(e) { tasks = []; }
-    sortTasks();
-  }
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-    if (swRegistration && swRegistration.active) {
-      swRegistration.active.postMessage({ type: 'SYNC_TASKS', tasks });
-    }
-    localStorage.setItem(NOTIFIED_KEY, JSON.stringify([...notifiedSet]));
-  }
-  function sortTasks() {
-    tasks.sort((a, b) => {
-      if (a.done !== b.done) return a.done ? 1 : -1;
-      if (!a.time24) return 1;
-      if (!b.time24) return -1;
-      return a.time24.localeCompare(b.time24);
-    });
-  }
-
-  function toggleDone(id) {
-    const t = tasks.find(x => x.id === id);
-    if (t) { t.done = !t.done; sortTasks(); save(); render(); }
-  }
-  function deleteTask(id) {
-    tasks = tasks.filter(x => x.id !== id);
-    save(); render();
-  }
-
-  function render() {
-    const list = document.getElementById('taskList');
-    list.innerHTML = '';
-    if (tasks.length === 0) {
-      list.innerHTML = '<li style="border:none; background:transparent; justify-content:center; color:var(--text-dim); font-size:11px;">[ NO_TASKS_QUEUED ]</li>';
-    } else {
-      const now = new Date();
-      const nowMinutes = now.getHours() * 60 + now.getMinutes();
-      tasks.forEach(t => {
-        const li = document.createElement('li');
-        let badge = '', cls = '';
-        if (!t.done && t.hour24 !== undefined) {
-          const taskMin = t.hour24 * 60 + t.minute;
-          const diff = taskMin - nowMinutes;
-          if (diff < 0) { cls = 'overdue'; badge = '<span class="badge overdue">OVERDUE</span>'; }
-          else if (diff <= 30) { cls = 'soon'; badge = `<span class="badge soon">IN ${diff}M</span>`; }
-        }
-        if (t.done) li.classList.add('done');
-        if (cls) li.classList.add(cls);
-        
-        li.innerHTML = `
-          <div class="task-info" onclick="toggleDone('${t.id}')">
-            <div class="task-text">${escapeHtml(t.text)}${badge}</div>
-            <div class="task-time">// ${t.timeThai || t.time24}</div>
-          </div>
-          <button class="icon-btn" onclick="deleteTask('${t.id}')" title="ลบ">[×]</button>
-        `;
-        list.appendChild(li);
-      });
-    }
-    const done = tasks.filter(t => t.done).length;
-    document.getElementById('statAll').textContent = tasks.length;
-    document.getElementById('statDone').textContent = done;
-    document.getElementById('statPending').textContent = tasks.length - done;
-  }
-
-  function escapeHtml(s) {
-    return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  // ===== PWA Install Logic =====
+  // จับ Event ติดตั้งของ Android / Desktop
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
+    installBtn.disabled = false;
+    installBtn.innerText = '📲 กดเพื่อติดตั้งแอปพลิเคชัน';
   });
 
-  function triggerPWAInstall() {
+  async function installApp() {
     if (deferredPrompt) {
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then(() => {
-        deferredPrompt = null;
-        closeModal('pwaModal');
-      });
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.innerText = '✅ ติดตั้งเรียบร้อยแล้ว';
+        installBtn.disabled = true;
+      }
+      deferredPrompt = null;
     } else {
-      alert('แอปพลิเคชันถูกติดตั้งแล้ว หรือพร้อมใช้งานผ่านเบราว์เซอร์ค่ะ');
+      alert('หากรันบนเบราว์เซอร์มือถือ ให้กดเมนูจุด 3 จุด แล้วเลือก "ติดตั้งแอป" หรือ "Add to Home Screen" ได้เลยค่ะ');
     }
   }
 
-  // ===== Service Worker =====
+  // ลงทะเบียน Service Worker
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', async () => {
-      try {
-        swRegistration = await navigator.serviceWorker.register('sw.js');
-        navigator.serviceWorker.addEventListener('message', (e) => {
-          if (e.data?.type === 'APPLY_UPDATE') {
-            document.getElementById('updateToast').classList.add('show');
-          }
-        });
-      } catch(err) { console.warn('[PWA] SW registration failed', err); }
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW Registered!', reg))
+        .catch(err => console.error('SW Error:', err));
     });
   }
-
-  function applyUpdate() {
-    if (swRegistration && swRegistration.waiting) {
-      swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-    document.getElementById('updateToast').classList.remove('show');
-    setTimeout(() => window.location.reload(), 300);
-  }
-
-  // ===== Network Status =====
-  window.addEventListener('online', () => document.getElementById('offlineBadge').classList.remove('show'));
-  window.addEventListener('offline', () => document.getElementById('offlineBadge').classList.add('show'));
-
-  // ===== Start Application =====
-  load();
-  render();
-  updateClock();
-  setInterval(updateClock, 1000);
-  setInterval(render, 30000);
 </script>
 </body>
 </html>
