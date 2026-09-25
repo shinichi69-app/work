@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TASK_SYSTEM // PWA</title>
+    <title>TASK_SYSTEM // FIREBASE</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
 
@@ -32,7 +32,6 @@
             padding-bottom: 60px;
         }
 
-        /* Grid Background */
         body::before {
             content: "";
             position: fixed;
@@ -45,7 +44,9 @@
             z-index: 0;
         }
 
-        /* ===== HEADER ===== */
+        .hidden { display: none !important; }
+
+        /* HEADER */
         header {
             position: relative;
             z-index: 20;
@@ -54,41 +55,47 @@
             margin: 0 auto;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 20px;
         }
 
+        .header-left { display: flex; align-items: center; gap: 20px; }
+
         .avatar {
-            width: 80px;
-            height: 80px;
+            width: 60px; height: 60px;
             border: 2px solid var(--border-light);
             background: var(--bg-card);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px;
             flex-shrink: 0;
         }
 
         .header-info h1 {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             letter-spacing: 4px;
             color: var(--accent);
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .header-info .subtitle {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 13px;
+            font-size: 11px;
             color: var(--text-dim);
             letter-spacing: 3px;
         }
-
         .header-info .subtitle::before { content: "[ "; }
         .header-info .subtitle::after  { content: " ]"; }
 
-        /* ===== CONTAINER ===== */
+        .user-email {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-align: right;
+        }
+
+        /* CONTAINER */
         .container {
             position: relative;
             z-index: 20;
@@ -97,7 +104,7 @@
             padding: 0 20px 20px;
         }
 
-        /* ===== CARD ===== */
+        /* CARD */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -107,18 +114,13 @@
         }
 
         .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0;
+            content: ""; position: absolute; top: 0; left: 0;
             width: 24px; height: 24px;
             border-top: 2px solid var(--border-light);
             border-left: 2px solid var(--border-light);
         }
-
         .card::after {
-            content: "";
-            position: absolute;
-            bottom: 0; right: 0;
+            content: ""; position: absolute; bottom: 0; right: 0;
             width: 24px; height: 24px;
             border-bottom: 2px solid var(--border-light);
             border-right: 2px solid var(--border-light);
@@ -133,337 +135,341 @@
             padding-bottom: 10px;
             border-bottom: 1px dashed var(--border);
         }
+        .card-title::before { content: "▸ "; color: var(--text); }
 
-        .card-title::before {
-            content: "▸ ";
-            color: var(--text);
-        }
-
-        /* ===== FORM ===== */
+        /* FORM */
         .form-group { margin-bottom: 18px; }
 
         label {
-            display: block;
-            margin-bottom: 8px;
+            display: block; margin-bottom: 8px;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            text-transform: uppercase;
+            font-size: 11px; color: var(--text-dim);
+            letter-spacing: 2px; text-transform: uppercase;
         }
 
         input {
-            width: 100%;
-            padding: 12px 14px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            transition: all 0.2s;
+            width: 100%; padding: 12px 14px;
+            background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem; transition: all 0.2s;
         }
-
-        input:focus {
-            outline: none;
-            border-color: var(--border-light);
-            background: #0d0d0d;
-        }
-
+        input:focus { outline: none; border-color: var(--border-light); background: #0d0d0d; }
         input::placeholder { color: var(--text-muted); }
 
-        /* ===== BUTTONS ===== */
+        /* BUTTONS */
         button {
             font-family: 'Share Tech Mono', monospace;
-            padding: 12px 24px;
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border-light);
-            cursor: pointer;
-            font-size: 12px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            padding: 12px 24px; background: transparent;
+            color: var(--text); border: 1px solid var(--border-light);
+            cursor: pointer; font-size: 12px; letter-spacing: 2px;
+            text-transform: uppercase; transition: all 0.2s;
         }
+        button:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        button:hover {
-            background: var(--text);
-            color: var(--bg);
-            border-color: var(--text);
-        }
+        .btn-primary { width: 100%; padding: 14px; margin-top: 10px; }
+        .btn-danger { border-color: var(--danger); color: var(--danger); padding: 6px 12px; font-size: 10px; }
+        .btn-danger:hover { background: var(--danger); color: #fff; }
+        .btn-outline { border-color: var(--text-dim); color: var(--text-dim); padding: 8px 16px; font-size: 11px; }
+        .btn-outline:hover { border-color: var(--danger); color: var(--danger); background: transparent; }
 
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-        }
-
-        .btn-danger {
-            border-color: var(--danger);
-            color: var(--danger);
-            padding: 6px 12px;
-            font-size: 10px;
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        /* ===== TASK LIST ===== */
+        /* TASK LIST */
         .task-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px dashed var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px dashed var(--border);
         }
-
         .task-item:last-child { border-bottom: none; }
-
         .task-info { flex: 1; cursor: pointer; }
-
         .task-info h3 {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text);
-            margin-bottom: 4px;
-            letter-spacing: 1px;
+            font-family: 'Rajdhani', sans-serif; font-size: 1.1rem;
+            font-weight: 600; color: var(--text); margin-bottom: 4px; letter-spacing: 1px;
         }
-
         .task-info p {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            color: var(--text-dim);
-            letter-spacing: 1px;
+            font-size: 11px; color: var(--text-dim); letter-spacing: 1px;
         }
-
-        .completed h3 {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
+        .completed h3 { text-decoration: line-through; color: var(--text-muted); }
 
         .status-badge {
-            display: inline-block;
-            padding: 2px 8px;
+            display: inline-block; padding: 2px 8px;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 2px;
-            margin-left: 10px;
-            vertical-align: middle;
+            font-size: 9px; letter-spacing: 2px; margin-left: 10px; vertical-align: middle;
         }
-
         .badge-waiting { border: 1px solid var(--warning); color: var(--warning); }
         .badge-done    { border: 1px solid var(--success); color: var(--success); }
 
         .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            letter-spacing: 2px;
+            text-align: center; padding: 40px 20px;
+            color: var(--text-muted); font-family: 'Share Tech Mono', monospace;
+            font-size: 12px; letter-spacing: 2px;
         }
-
         .empty-state::before { content: "[ "; }
         .empty-state::after  { content: " ]"; }
 
         .hint {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 12px;
-            text-align: center;
-            letter-spacing: 1px;
+            font-size: 11px; color: var(--text-muted); margin-top: 12px;
+            text-align: center; letter-spacing: 1px;
             font-family: 'Share Tech Mono', monospace;
         }
 
-        /* ===== MODAL ===== */
-        .modal {
-            display: none;
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border-light);
-            padding: 25px;
-            z-index: 200;
-            max-height: 80vh;
-            overflow-y: auto;
+        /* LOADING */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,10,10,0.9); z-index: 999;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--success); letter-spacing: 3px;
         }
 
-        .modal.active { display: block; }
-
-        .modal h2 {
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.5rem;
-            letter-spacing: 3px;
-            margin-bottom: 15px;
-            color: var(--accent);
-        }
-
-        .modal p {
-            color: var(--text-dim);
-            font-size: 14px;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 24px;
-            padding: 5px;
-            width: auto;
-        }
-
-        .close-btn:hover { color: var(--danger); background: none; }
-
-        .ios-guide {
-            background: var(--bg);
-            border: 1px dashed var(--border);
-            padding: 15px;
-            margin-top: 15px;
-            font-size: 13px;
-            line-height: 1.8;
-            color: var(--text-dim);
-        }
-
-        .ios-guide strong {
-            color: var(--text);
-            display: block;
-            margin-bottom: 8px;
-            letter-spacing: 1px;
-        }
-
-        /* ===== SCROLLBAR ===== */
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); }
-        ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 500px) {
-            .header-info h1 { font-size: 1.8rem; }
-            .avatar { width: 60px; height: 60px; font-size: 28px; }
+            .header-info h1 { font-size: 1.5rem; }
+            .avatar { width: 50px; height: 50px; font-size: 24px; }
+            .user-email { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="avatar">🔔</div>
-        <div class="header-info">
-            <h1>TASK_SYSTEM</h1>
-            <div class="subtitle">SUPPORTER</div>
-        </div>
-    </header>
+    <!-- LOADING -->
+    <div id="loading" class="loading-overlay">INITIALIZING SYSTEM...</div>
 
-    <div class="container">
-        <!-- ADD TASK -->
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="hidden" style="position: relative; z-index: 20; max-width: 400px; margin: 100px auto; padding: 0 20px;">
         <div class="card">
-            <div class="card-title">NEW_TASK_ENTRY</div>
+            <div class="card-title">AUTHENTICATION_REQUIRED</div>
             <div class="form-group">
-                <label>TASK_NAME</label>
-                <input type="text" id="taskTitle" placeholder="ระบุชื่องาน...">
+                <label>USER_ID (EMAIL)</label>
+                <input type="email" id="loginEmail" placeholder="user@system.net">
             </div>
             <div class="form-group">
-                <label>TARGET_TIME</label>
-                <input type="datetime-local" id="taskTime">
+                <label>ACCESS_KEY (PASSWORD)</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
-            <button class="btn-primary" onclick="addTask()">[ EXECUTE ]</button>
-            <p class="hint">* กรุณาอนุญาตการแจ้งเตือน (Notification) ในเบราว์เซอร์</p>
+            <button class="btn-primary" id="btnLogin">[ LOGIN ]</button>
+            <button class="btn-primary" id="btnRegister" style="margin-top: 10px; border-color: var(--text-dim); color: var(--text-dim);">[ REGISTER_NEW_USER ]</button>
+            <p id="loginError" class="hint" style="color: var(--danger); margin-top: 15px;"></p>
         </div>
+    </div>
 
-        <!-- TASK LIST -->
-        <div class="card">
-            <div class="card-title">ACTIVE_TASKS</div>
-            <div id="taskList">
-                <div class="empty-state">NO_DATA_FOUND</div>
+    <!-- MAIN APP -->
+    <div id="appScreen" class="hidden">
+        <header>
+            <div class="header-left">
+                <div class="avatar">🔔</div>
+                <div class="header-info">
+                    <h1>TASK_SYSTEM</h1>
+                    <div class="subtitle">CLOUD_SYNCED</div>
+                </div>
+            </div>
+            <div>
+                <div class="user-email" id="userEmailDisplay">user@system.net</div>
+                <button class="btn-outline" id="btnLogout" style="margin-top: 8px;">[ LOGOUT ]</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="card">
+                <div class="card-title">NEW_TASK_ENTRY</div>
+                <div class="form-group">
+                    <label>TASK_NAME</label>
+                    <input type="text" id="taskTitle" placeholder="ระบุชื่องาน...">
+                </div>
+                <div class="form-group">
+                    <label>TARGET_TIME</label>
+                    <input type="datetime-local" id="taskTime">
+                </div>
+                <button class="btn-primary" id="btnAddTask">[ EXECUTE ]</button>
+                <p class="hint">* ข้อมูลจะถูกซิงค์ขึ้น Cloud อัตโนมัติ</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">ACTIVE_TASKS</div>
+                <div id="taskList">
+                    <div class="empty-state">SYNCING_DATA...</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- INSTALL MODAL -->
-    <div id="installModal" class="modal">
-        <button class="close-btn" onclick="closeInstallModal()">✕</button>
-        <h2>INSTALL_APPLICATION</h2>
-        <p>เพิ่ม TASK_SYSTEM ลงบนหน้าจอหลักเพื่อเข้าถึงได้รวดเร็ว</p>
-        <button id="installBtn" style="width:100%; margin-top:10px;" onclick="installPWA()">[ INSTALL ]</button>
-        <div class="ios-guide">
-            <strong>📱 iOS / iPadOS (Safari):</strong>
-            1. แตะปุ่ม "แชร์ (Share)" ด้านล่างเบราว์เซอร์<br>
-            2. เลือก "เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)"
-        </div>
-    </div>
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        // ==========================================
+        // 1. FIREBASE CONFIGURATION (เปลี่ยนตรงนี้!)
+        // ==========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
+            signOut, onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, deleteDoc, updateDoc, 
+            onSnapshot, query, orderBy, doc, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <script>
-        let tasks = JSON.parse(localStorage.getItem('pwa_tasks')) || [];
-        let deferredPrompt;
+const firebaseConfig = {
+  apiKey: "AIzaSyCGG103Vc3C7xhgW-4XQRU4K0OzuotLx-I",
+  authDomain: "login-15303.firebaseapp.com",
+  projectId: "login-15303",
+  storageBucket: "login-15303.firebasestorage.app",
+  messagingSenderId: "403564723749",
+  appId: "1:403564723749:web:e57a87696ccb7e17b049cc",
+  measurementId: "G-NX2PYPDR3G"
+};
 
-        // Notification permission
-        if ("Notification" in window && Notification.permission === "default") {
-            Notification.requestPermission();
-        }
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        function showNotification(title, body) {
-            if (Notification.permission === "granted") {
-                const notif = new Notification(title, {
-                    body: body,
-                    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>",
-                    requireInteraction: true
-                });
-                notif.onclick = () => { window.focus(); notif.close(); };
+        // ==========================================
+        // 2. STATE & DOM ELEMENTS
+        // ==========================================
+        let currentUser = null;
+        let tasks = [];
+        let unsubscribeTasks = null;
+
+        const loadingEl = document.getElementById('loading');
+        const loginScreen = document.getElementById('loginScreen');
+        const appScreen = document.getElementById('appScreen');
+        const loginError = document.getElementById('loginError');
+
+        // ==========================================
+        // 3. AUTHENTICATION LOGIC
+        // ==========================================
+        onAuthStateChanged(auth, (user) => {
+            loadingEl.classList.add('hidden');
+            
+            if (user) {
+                // Logged in
+                currentUser = user;
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                document.getElementById('userEmailDisplay').textContent = user.email;
+                startRealtimeListener();
             } else {
-                alert("⚠️ " + title + "\n" + body);
+                // Logged out
+                currentUser = null;
+                appScreen.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                if (unsubscribeTasks) unsubscribeTasks();
             }
+        });
+
+        document.getElementById('btnLogin').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            loginError.textContent = "AUTHENTICATING...";
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = "ERROR: " + translateAuthError(error.code);
+            }
+        });
+
+        document.getElementById('btnRegister').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            loginError.textContent = "CREATING_ACCOUNT...";
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                loginError.textContent = "ERROR: " + translateAuthError(error.code);
+            }
+        });
+
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        function translateAuthError(code) {
+            const errors = {
+                'auth/user-not-found': 'ไม่พบผู้ใช้งานนี้',
+                'auth/wrong-password': 'รหัสผ่านไม่ถูกต้อง',
+                'auth/invalid-email': 'รูปแบบอีเมลไม่ถูกต้อง',
+                'auth/email-already-in-use': 'อีเมลนี้ถูกใช้งานแล้ว',
+                'auth/weak-password': 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร'
+            };
+            return errors[code] || code;
         }
 
-        function saveTasks() {
-            localStorage.setItem('pwa_tasks', JSON.stringify(tasks));
+        // ==========================================
+        // 4. FIRESTORE REALTIME LOGIC
+        // ==========================================
+        function startRealtimeListener() {
+            if (unsubscribeTasks) unsubscribeTasks();
+
+            const q = query(
+                collection(db, "users", currentUser.uid, "tasks"),
+                orderBy("time", "asc")
+            );
+
+            unsubscribeTasks = onSnapshot(q, (snapshot) => {
+                tasks = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderTasks();
+            }, (error) => {
+                console.error("Firestore Error:", error);
+                document.getElementById('taskList').innerHTML = 
+                    '<div class="empty-state" style="color:var(--danger)">SYNC_FAILED</div>';
+            });
         }
 
-        function addTask() {
+        // ==========================================
+        // 5. TASK OPERATIONS
+        // ==========================================
+        document.getElementById('btnAddTask').addEventListener('click', async () => {
             const title = document.getElementById('taskTitle').value.trim();
             const time = document.getElementById('taskTime').value;
 
             if (!title || !time) {
-                alert("⚠️ กรุณากรอกข้อมูลให้ครบถ้วน");
+                alert("ERROR: TASK_NAME & TARGET_TIME REQUIRED");
                 return;
             }
 
-            tasks.push({
-                id: Date.now(),
-                title: title,
-                time: time,
-                notified: false,
-                completed: false
-            });
+            try {
+                await addDoc(collection(db, "users", currentUser.uid, "tasks"), {
+                    title: title,
+                    time: time,
+                    notified: false,
+                    completed: false,
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('taskTitle').value = '';
+            } catch (error) {
+                console.error("Add Error:", error);
+                alert("ERROR: FAILED_TO_SAVE");
+            }
+        });
 
-            tasks.sort((a, b) => new Date(a.time) - new Date(b.time));
-            saveTasks();
-            renderTasks();
-
-            document.getElementById('taskTitle').value = '';
-            document.getElementById('taskTime').value = '';
-        }
-
-        function toggleComplete(id) {
+        window.toggleComplete = async (id) => {
             const task = tasks.find(t => t.id === id);
             if (task) {
-                task.completed = !task.completed;
-                saveTasks();
-                renderTasks();
+                try {
+                    await updateDoc(doc(db, "users", currentUser.uid, "tasks", id), {
+                        completed: !task.completed
+                    });
+                } catch (error) { console.error(error); }
             }
-        }
+        };
 
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            saveTasks();
-            renderTasks();
-        }
+        window.deleteTask = async (id) => {
+            try {
+                await deleteDoc(doc(db, "users", currentUser.uid, "tasks", id));
+            } catch (error) { console.error(error); }
+        };
 
+        // ==========================================
+        // 6. RENDER & NOTIFICATIONS
+        // ==========================================
         function renderTasks() {
             const listEl = document.getElementById('taskList');
             if (tasks.length === 0) {
@@ -488,60 +494,52 @@
 
                 return `
                     <div class="task-item ${task.completed ? 'completed' : ''}">
-                        <div class="task-info" onclick="toggleComplete(${task.id})">
+                        <div class="task-info" onclick="toggleComplete('${task.id}')">
                             <h3>${task.title} ${statusBadge}</h3>
                             <p>⏱ ${formattedTime}</p>
                         </div>
-                        <button class="btn-danger" onclick="deleteTask(${task.id})">DEL</button>
+                        <button class="btn-danger" onclick="deleteTask('${task.id}')">DEL</button>
                     </div>
                 `;
             }).join('');
         }
 
-        function checkForNotifications() {
+        // Local Notification Check (ทำงานเมื่อเปิดแท็บอยู่)
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+
+        function showNotification(title, body) {
+            if (Notification.permission === "granted") {
+                const notif = new Notification(title, {
+                    body: body,
+                    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
+                });
+                notif.onclick = () => { window.focus(); notif.close(); };
+            }
+        }
+
+        setInterval(() => {
+            if (!currentUser) return;
             const now = new Date().getTime();
             let hasChanges = false;
 
             tasks.forEach(task => {
                 const taskTime = new Date(task.time).getTime();
                 if (taskTime <= now && !task.notified && !task.completed) {
-                    showNotification("⚠️ TASK_ALERT: " + task.title, "เวลา: " + new Date(task.time).toLocaleString('th-TH'));
-                    task.notified = true;
+                    showNotification("️ TASK_ALERT: " + task.title, "เวลา: " + new Date(task.time).toLocaleString('th-TH'));
+                    
+                    // อัปเดตสถานะ notified ขึ้น Cloud
+                    updateDoc(doc(db, "users", currentUser.uid, "tasks", task.id), {
+                        notified: true
+                    }).catch(e => console.error(e));
+                    
                     hasChanges = true;
                 }
             });
+        }, 5000); // เช็คทุก 5 วินาที
 
-            if (hasChanges) {
-                saveTasks();
-                renderTasks();
-            }
-        }
-        setInterval(checkForNotifications, 1000);
-
-        // PWA Install
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installModal').classList.add('active');
-        });
-
-        async function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                closeInstallModal();
-            } else {
-                alert("เบราว์เซอร์นี้ไม่รองรับการติดตั้ง PWA โดยตรง");
-            }
-        }
-
-        function closeInstallModal() {
-            document.getElementById('installModal').classList.remove('active');
-        }
-
-        // Init
-        renderTasks();
+        // Init time input
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
         document.getElementById('taskTime').value = now.toISOString().slice(0, 16);
